@@ -32,9 +32,9 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Firm Settings
         $firmSettings = [
-            'firm_name' => 'AuditFlow Accounting & Advisory',
+            'firm_name' => 'thrumble.audit',
             'firm_tagline' => 'Accounting, Tax & Assurance Advisors',
-            'firm_email' => 'office@auditflow.in',
+            'firm_email' => 'office@thrumble.audit',
             'firm_phone' => '+91 22 4001 9900',
             'firm_address' => 'Suite 804, Maker Chambers V, Nariman Point, Mumbai 400021',
             'firm_pan' => 'AABFC7890K',
@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
         // 2. Staff & Client Users (5 Roles)
         $superAdmin = User::create([
             'name' => 'Rajesh Kulkarni',
-            'email' => 'admin@auditflow.in',
+            'email' => 'admin@thrumble.audit',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SUPER_ADMIN,
             'employee_code' => 'EMP-001',
@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
 
         $partner = User::create([
             'name' => 'Meera Deshmukh',
-            'email' => 'partner@auditflow.in',
+            'email' => 'partner@thrumble.audit',
             'password' => Hash::make('password'),
             'role' => User::ROLE_PARTNER,
             'employee_code' => 'EMP-002',
@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
 
         $manager = User::create([
             'name' => 'Rohan Verma',
-            'email' => 'manager@auditflow.in',
+            'email' => 'manager@thrumble.audit',
             'password' => Hash::make('password'),
             'role' => User::ROLE_MANAGER,
             'employee_code' => 'EMP-003',
@@ -87,7 +87,7 @@ class DatabaseSeeder extends Seeder
 
         $employee = User::create([
             'name' => 'Priya Nair',
-            'email' => 'employee@auditflow.in',
+            'email' => 'employee@thrumble.audit',
             'password' => Hash::make('password'),
             'role' => User::ROLE_EMPLOYEE,
             'employee_code' => 'EMP-004',
@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
 
         $employee2 = User::create([
             'name' => 'Sneha Iyer',
-            'email' => 'sneha@auditflow.in',
+            'email' => 'sneha@thrumble.audit',
             'password' => Hash::make('password'),
             'role' => User::ROLE_EMPLOYEE,
             'employee_code' => 'EMP-005',
@@ -360,7 +360,7 @@ class DatabaseSeeder extends Seeder
         ComplianceDeadline::create(['title' => 'Sahyadri Agro GSTR-9 Overdue Follow-up', 'compliance_type' => 'gst', 'client_id' => $c5->id, 'assigned_to' => $manager->id, 'due_date' => now()->subDays(4), 'status' => 'overdue', 'priority' => 'urgent']);
 
         // 10. Documents (with real stored files for working download verification)
-        Storage::disk('local')->put('documents/client_1/sample_gst_recon.txt', "Apex Precision GST Reconciliation Sheet\nPeriod: Oct 2026\nVerified by AuditFlow ERP\n");
+        Storage::disk('local')->put('documents/client_1/sample_gst_recon.txt', "Apex Precision GST Reconciliation Sheet\nPeriod: Oct 2026\nVerified by thrumble.audit\n");
         $doc1 = Document::create([
             'client_id' => $c1->id, 'title' => 'GSTR-2B Reconciliation Summary (Oct 2026)', 'category' => 'gst_documents',
             'status' => 'approved', 'requested_by' => $employee->id, 'uploaded_by' => $clientUser1->id,

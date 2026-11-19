@@ -155,8 +155,8 @@ class ClientPortalIsolationTest extends TestCase
 
     public function test_employee_sees_only_assigned_projects_and_clients(): void
     {
-        $employee = User::where('email', 'employee@auditflow.in')->firstOrFail();
-        $partner = User::where('email', 'partner@auditflow.in')->firstOrFail();
+        $employee = User::where('email', 'employee@thrumble.audit')->firstOrFail();
+        $partner = User::where('email', 'partner@thrumble.audit')->firstOrFail();
 
         $assignedClient = Client::where('assigned_ca_id', $employee->id)->firstOrFail();
         $unassignedClient = Client::where('assigned_ca_id', '!=', $employee->id)

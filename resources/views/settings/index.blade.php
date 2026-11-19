@@ -13,10 +13,10 @@
         <form action="{{ route('settings.update') }}" method="POST" class="ca-card p-3 mb-3">
             @csrf
             <h2 class="h6 fw-bold mb-3">CA Firm &amp; Billing Settings</h2>
-            <div class="mb-2"><label class="form-label small fw-semibold">Firm Name *</label><input type="text" name="firm_name" value="{{ $settings['firm_name'] ?? 'AuditFlow Accounting & Advisory' }}" class="form-control form-control-sm" required></div>
+            <div class="mb-2"><label class="form-label small fw-semibold">Firm Name *</label><input type="text" name="firm_name" value="{{ $settings['firm_name'] ?? 'thrumble.audit' }}" class="form-control form-control-sm" required></div>
             <div class="mb-2"><label class="form-label small fw-semibold">Tagline</label><input type="text" name="firm_tagline" value="{{ $settings['firm_tagline'] ?? 'Accounting, Tax & Assurance Advisors' }}" class="form-control form-control-sm"></div>
             <div class="row g-2 mb-2">
-                <div class="col-6"><label class="form-label small fw-semibold">Email</label><input type="email" name="firm_email" value="{{ $settings['firm_email'] ?? 'office@auditflow.in' }}" class="form-control form-control-sm"></div>
+                <div class="col-6"><label class="form-label small fw-semibold">Email</label><input type="email" name="firm_email" value="{{ $settings['firm_email'] ?? 'office@thrumble.audit' }}" class="form-control form-control-sm"></div>
                 <div class="col-6"><label class="form-label small fw-semibold">Phone</label><input type="text" name="firm_phone" value="{{ $settings['firm_phone'] ?? '+91 22 4001 9900' }}" class="form-control form-control-sm"></div>
             </div>
             <div class="mb-2"><label class="form-label small fw-semibold">Office Address</label><textarea name="firm_address" rows="2" class="form-control form-control-sm">{{ $settings['firm_address'] ?? 'Nariman Point, Mumbai, Maharashtra 400021' }}</textarea></div>

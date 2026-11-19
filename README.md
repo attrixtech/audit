@@ -1,4 +1,4 @@
-# AuditFlow ERP — Accounting Practice Management Software
+# thrumble.audit — Accounting Practice Management Software
 
 A complete, responsive **Practice Management ERP for Accounting Professionals** built with **Laravel 13**, **PHP 8.4**, **Bootstrap 5**, **Chart.js**, **DomPDF**, and **MySQL / SQLite**.
 
@@ -43,8 +43,14 @@ A complete, responsive **Practice Management ERP for Accounting Professionals** 
 
 ## Demo Credentials (Password: `password`)
 
-- **Super Admin**: `admin@auditflow.in`
-- **Principal / Partner**: `partner@auditflow.in`
-- **Manager**: `manager@auditflow.in`
-- **Accountant / Employee**: `employee@auditflow.in`
+- **Super Admin**: `admin@thrumble.audit`
+- **Principal / Partner**: `partner@thrumble.audit`
+- **Manager**: `manager@thrumble.audit`
+- **Accountant / Employee**: `employee@thrumble.audit`
 - **Client Portal**: `client@apexprecision.in`
+
+## Credits
+
+- **Product:** thrumble.audit
+- **Developed by:** [Attrix Technologies](https://www.attrixtech.com)
+- **Marketed by:** [Infusionn Pvt. Ltd](https://www.infusionn.in)

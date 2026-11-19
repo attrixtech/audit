@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — AuditFlow ERP</title>
+    <title>@yield('title', 'Dashboard') — thrumble.audit</title>
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -216,6 +216,7 @@
             @endif
 
             @yield('content')
+            <x-app-credits class="mt-4 border-top" />
         </main>
     </div>
 </div>

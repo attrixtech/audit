@@ -21,10 +21,10 @@
 <table style="border: none; margin-top: 0;">
     <tr>
         <td style="border: none; padding: 0; vertical-align: top;">
-            <div class="firm-title">{{ $firm['firm_name'] ?? 'AuditFlow Accounting & Advisory' }}</div>
+            <div class="firm-title">{{ $firm['firm_name'] ?? 'thrumble.audit' }}</div>
             <div>{{ $firm['firm_address'] ?? 'Mumbai, Maharashtra' }}</div>
             <div>PAN: {{ $firm['firm_pan'] ?? '—' }} | GSTIN: {{ $firm['firm_gstin'] ?? '—' }}</div>
-            <div>Email: {{ $firm['firm_email'] ?? 'billing@auditflow.in' }} | Phone: {{ $firm['firm_phone'] ?? '—' }}</div>
+            <div>Email: {{ $firm['firm_email'] ?? 'billing@thrumble.audit' }} | Phone: {{ $firm['firm_phone'] ?? '—' }}</div>
         </td>
         <td style="border: none; padding: 0; vertical-align: top; text-align: right;">
             <div class="inv-title">TAX INVOICE</div>
@@ -89,6 +89,7 @@
         <strong>Notes:</strong> {{ $invoice->notes }}
     </div>
 @endif
+<x-app-credits :inline="true" style="margin-top: 30px; text-align: center; font-size: 10px; color: #94a3b8;" />
 </body>
 </html>
 

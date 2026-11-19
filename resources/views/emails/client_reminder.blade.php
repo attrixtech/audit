@@ -17,6 +17,7 @@
     <div class="footer">
         This message was sent via {{ $firmName }} Practice Management System. Please log in to your Client Portal to upload documents or reply securely.
     </div>
+    <x-app-credits :inline="true" style="margin-top: 8px; font-size: 11px; color: #94a3b8;" />
 </div>
 </body>
 </html>

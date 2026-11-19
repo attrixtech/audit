@@ -18,7 +18,7 @@ class ClientReminderMail extends Mailable
         public readonly Client $client,
         public readonly string $mailSubject,
         public readonly string $messageBody,
-        public readonly string $firmName = 'AuditFlow Accounting & Advisory'
+        public readonly string $firmName = 'thrumble.audit'
     ) {}
 
     public function envelope(): Envelope

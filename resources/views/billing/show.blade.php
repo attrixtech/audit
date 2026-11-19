@@ -22,7 +22,7 @@
         <div class="ca-card p-4 mb-3">
             <div class="row mb-4">
                 <div class="col-6">
-                    <div class="fw-bold" style="color: #1e3a5f;">{{ $firm['firm_name'] ?? 'AuditFlow Accounting & Advisory' }}</div>
+                    <div class="fw-bold" style="color: #1e3a5f;">{{ $firm['firm_name'] ?? 'thrumble.audit' }}</div>
                     <div class="small text-muted">{{ $firm['firm_address'] ?? 'Mumbai, Maharashtra' }}</div>
                     <div class="small text-muted">GSTIN: {{ $firm['firm_gstin'] ?? '—' }}</div>
                 </div>

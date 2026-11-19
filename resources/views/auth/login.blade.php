@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In — AuditFlow ERP</title>
+    <title>Sign In — thrumble.audit</title>
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 </head>
 <body class="min-vh-100 d-flex align-items-center justify-content-center p-3" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 55%, #f0fdfa 100%);">
@@ -22,10 +22,10 @@
                 <div class="small fw-semibold text-uppercase text-muted mb-2" style="font-size: 0.7rem; letter-spacing: 0.06em;">Demo Accounts (Click to Fill)</div>
                 <div class="d-grid gap-1">
                     @foreach([
-                        ['label' => 'Super Admin', 'email' => 'admin@auditflow.in', 'pass' => 'password'],
-                        ['label' => 'Principal / Partner', 'email' => 'partner@auditflow.in', 'pass' => 'password'],
-                        ['label' => 'Manager', 'email' => 'manager@auditflow.in', 'pass' => 'password'],
-                        ['label' => 'Accountant / Employee', 'email' => 'employee@auditflow.in', 'pass' => 'password'],
+                        ['label' => 'Super Admin', 'email' => 'admin@thrumble.audit', 'pass' => 'password'],
+                        ['label' => 'Principal / Partner', 'email' => 'partner@thrumble.audit', 'pass' => 'password'],
+                        ['label' => 'Manager', 'email' => 'manager@thrumble.audit', 'pass' => 'password'],
+                        ['label' => 'Accountant / Employee', 'email' => 'employee@thrumble.audit', 'pass' => 'password'],
                         ['label' => 'Client Portal User', 'email' => 'client@apexprecision.in', 'pass' => 'password'],
                     ] as $demo)
                         <button type="button"
@@ -72,6 +72,7 @@
             </form>
         </div>
     </div>
+    <x-app-credits class="mt-3" />
 </div>
 <script>
 document.querySelectorAll('.demo-fill-btn').forEach(btn => {
