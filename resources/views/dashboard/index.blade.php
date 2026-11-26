@@ -5,9 +5,9 @@
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center flex-wrap gap-2">
             <h1 class="page-title mb-0">{{ $roleMeta['heading'] ?? 'Practice Overview' }}</h1>
-            <span class="badge text-bg-light border text-uppercase">{{ str_replace('_', ' ', auth()->user()->role) }}</span>
+            <span class="badge text-bg-light border text-uppercase">{{ auth()->user()->roleLabel() }}</span>
         </div>
         <p class="page-subtitle mb-0">{{ $roleMeta['subheading'] ?? 'Real-time compliance, tax, audit, and practice health metrics.' }}</p>
     </div>
@@ -33,7 +33,7 @@
             <div class="card-body">
                 <div class="kpi-label">{{ $isEmployee ? 'My Assigned Clients' : 'Active Clients' }}</div>
                 <div class="kpi-value">{{ $kpis['active_clients'] }}</div>
-                <div class="kpi-meta"><span class="text-success"><i class="bi bi-building-check me-1"></i>GST: {{ $kpis['gst_clients'] }}</span> · ITR: {{ $kpis['itr_clients'] }}</div>
+                <div class="kpi-meta"><span class="text-success"><i class="bi bi-building-check me-1"></i>GST: {{ $kpis['gst_clients'] }}</span> · ITR: {{ $kpis['itr_clients'] }} · <a href="{{ route('clients.index') }}" class="text-decoration-none">Clients CRM →</a></div>
             </div>
         </div>
     </div>
@@ -164,6 +164,9 @@
 </div>
 
 <!-- Role-Tailored Charts -->
+@php
+    $singleChartOnly = is_null($charts['monthly_revenue']) && is_null($charts['client_growth']) && is_null($charts['employee_workload']);
+@endphp
 <div class="row g-3 mb-4">
     @if(!is_null($charts['monthly_revenue']))
         <div class="col-lg-6">
@@ -173,21 +176,23 @@
                     <span class="badge text-bg-light">Billing</span>
                 </div>
                 <div class="card-body">
-                    <canvas id="revenueChart" height="140"></canvas>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
-    <div class="{{ is_null($charts['monthly_revenue']) ? 'col-lg-6' : 'col-lg-6' }}">
+    <div class="{{ $singleChartOnly ? 'col-12' : 'col-lg-6' }}">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>{{ $isEmployee ? 'My Compliance Completion Status' : 'Compliance Completion Status' }}</span>
                 <span class="badge text-bg-light">GST · ITR · TDS</span>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <div style="max-width: 300px; width: 100%;">
-                    <canvas id="complianceChart" height="220"></canvas>
+            <div class="card-body">
+                <div style="position: relative; height: 260px;">
+                    <canvas id="complianceChart"></canvas>
                 </div>
             </div>
         </div>
@@ -201,7 +206,9 @@
                     <span class="badge text-bg-light">CRM</span>
                 </div>
                 <div class="card-body">
-                    <canvas id="clientGrowthChart" height="140"></canvas>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="clientGrowthChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -215,7 +222,9 @@
                     <span class="badge text-bg-light">Staff</span>
                 </div>
                 <div class="card-body">
-                    <canvas id="workloadChart" height="140"></canvas>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="workloadChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -432,12 +441,14 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.Chart === 'undefined') return;
+
     const revenueCanvas = document.getElementById('revenueChart');
     if (revenueCanvas) {
         const revenueData = @json($charts['monthly_revenue']);
-        new Chart(revenueCanvas, {
+        new window.Chart(revenueCanvas, {
             type: 'bar',
             data: {
                 labels: revenueData.labels,
@@ -445,27 +456,30 @@
                     { label: 'Collected Revenue (₹)', data: revenueData.values, backgroundColor: 'rgba(13, 148, 136, 0.78)', borderColor: '#0d9488', borderWidth: 1.5, borderRadius: 6 }
                 ]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
-    const complianceData = @json($charts['compliance_completion']);
-    new Chart(document.getElementById('complianceChart'), {
-        type: 'bar',
-        data: {
-            labels: complianceData.labels,
-            datasets: [
-                { label: 'Completed', data: complianceData.completed, backgroundColor: '#0d9488', borderRadius: 6 },
-                { label: 'Pending', data: complianceData.pending, backgroundColor: '#f59e0b', borderRadius: 6 }
-            ]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
+    const complianceCanvas = document.getElementById('complianceChart');
+    if (complianceCanvas) {
+        const complianceData = @json($charts['compliance_completion']);
+        new window.Chart(complianceCanvas, {
+            type: 'bar',
+            data: {
+                labels: complianceData.labels,
+                datasets: [
+                    { label: 'Completed', data: complianceData.completed, backgroundColor: '#0d9488', borderRadius: 6 },
+                    { label: 'Pending', data: complianceData.pending, backgroundColor: '#f59e0b', borderRadius: 6 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
 
     const growthCanvas = document.getElementById('clientGrowthChart');
     if (growthCanvas) {
         const growthData = @json($charts['client_growth']);
-        new Chart(growthCanvas, {
+        new window.Chart(growthCanvas, {
             type: 'line',
             data: {
                 labels: growthData.labels,
@@ -478,14 +492,14 @@
                     tension: 0.35
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
     const workloadCanvas = document.getElementById('workloadChart');
     if (workloadCanvas) {
         const workloadData = @json($charts['employee_workload']);
-        new Chart(workloadCanvas, {
+        new window.Chart(workloadCanvas, {
             type: 'bar',
             data: {
                 labels: workloadData.labels,
@@ -494,8 +508,9 @@
                     { label: 'Completed Tasks', data: workloadData.completed, backgroundColor: '#0d9488', borderRadius: 6 }
                 ]
             },
-            options: { indexAxis: 'y', responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } }
         });
     }
+});
 </script>
 @endpush

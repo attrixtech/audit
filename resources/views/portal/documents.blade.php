@@ -44,7 +44,7 @@
                                 <form action="{{ route('portal.documents.upload') }}" method="POST" enctype="multipart/form-data" class="d-flex gap-1 align-items-center">
                                     @csrf
                                     <input type="hidden" name="document_id" value="{{ $doc->id }}">
-                                    <input type="file" name="file" class="form-control form-control-sm" style="max-width: 210px;" required>
+                                    <input type="file" name="file" accept=".pdf,application/pdf" class="form-control form-control-sm" style="max-width: 210px;" required>
                                     <button type="submit" class="btn btn-sm btn-primary text-nowrap">Upload</button>
                                 </form>
                             </div>
@@ -79,7 +79,7 @@
                 @endif
                 <div class="col-12"><label class="form-label small fw-semibold">Document Title *</label><input type="text" name="title" class="form-control form-control-sm" required></div>
                 <div class="col-12"><label class="form-label small fw-semibold">Category *</label><select name="category" class="form-select form-select-sm">@foreach(\App\Models\Document::CATEGORIES as $k => $v)<option value="{{ $k }}">{{ $v }}</option>@endforeach</select></div>
-                <div class="col-12"><label class="form-label small fw-semibold">File *</label><input type="file" name="file" class="form-control form-control-sm" required></div>
+                <div class="col-12"><label class="form-label small fw-semibold">File (PDF only) *</label><input type="file" name="file" accept=".pdf,application/pdf" class="form-control form-control-sm" required></div>
                 <div class="col-12"><label class="form-label small fw-semibold">Notes</label><input type="text" name="notes" class="form-control form-control-sm"></div>
             </div>
             <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Upload</button></div>

@@ -24,6 +24,10 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
+        if (Auth::check()) {
+            return redirect()->intended($this->redirectTarget(Auth::user()->role));
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -66,4 +70,3 @@ class AuthController extends Controller
         return $role === 'client' ? route('portal.dashboard') : route('dashboard');
     }
 }
-

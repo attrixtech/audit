@@ -12,6 +12,8 @@ $dark: #0f172a;
 
 $body-bg: #f4f7fb;
 $body-color: #1e293b;
+$link-color: #1e3a5f;
+$link-hover-color: #0f2544;
 $border-color: #e2e8f0;
 $border-radius: 0.55rem;
 $border-radius-lg: 0.75rem;
@@ -230,9 +232,114 @@ body {
     background-color: #eff6ff;
 }
 
+.calendar-day-clickable {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.calendar-day-clickable:hover {
+    background-color: #f0f9ff;
+}
+
+// Smooth navbar & offcanvas expansion (AM-02)
+.offcanvas {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.navbar-collapse {
+    transition: height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+
+// Ensure action icon buttons never look transparent on white rows (AC-10, AC-12)
+.btn-light.border {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1 !important;
+    color: #1e293b;
+}
+
+.btn-light.border:hover,
+.btn-light.border:focus {
+    background-color: #e2e8f0;
+    border-color: #94a3b8 !important;
+    color: #0f172a;
+}
+
+// Dashboard KPI & typography classes
+.page-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ca-navy);
+}
+
+.page-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.kpi-card {
+    border-radius: 0.85rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.kpi-label {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.kpi-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.45rem;
+}
+
+// Responsive table & mobile improvements (AC-05, AC-11, AC-17, CL-04)
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 991.98px) {
     .ca-sidebar {
         display: none;
+    }
+
+    .ca-topbar {
+        padding: 0.65rem 1rem;
+    }
+
+    .kanban-col {
+        min-height: auto;
+    }
+
+    .kanban-dropzone {
+        min-height: 80px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive > .table {
+        min-width: 640px;
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 0.55rem 0.65rem;
+        font-size: 0.84rem;
+    }
+
+    .ca-kpi-card {
+        padding: 0.9rem;
+    }
+
+    .calendar-grid {
+        min-width: 640px;
     }
 }
 

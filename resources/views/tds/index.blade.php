@@ -94,54 +94,13 @@
                         <td><x-status-badge :status="$tds->status" :label="$tds->statusLabel()" /></td>
                         <td class="small">{{ $tds->assignee?->name ?? 'Unassigned' }}</td>
                         <td class="text-end text-nowrap">
-                            <button class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editTdsModal{{ $tds->id }}"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editTdsModal{{ $tds->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
                             <form action="{{ route('tds.destroy', $tds) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete TDS record?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>
-
-                    <div class="modal fade" id="editTdsModal{{ $tds->id }}" tabindex="-1">
-                        <div class="modal-dialog modal-lg">
-                            <form action="{{ route('tds.update', $tds) }}" method="POST" class="modal-content">
-                                @csrf @method('PUT')
-                                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Update TDS — {{ $tds->client->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                <div class="modal-body row g-3">
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">FY</label><input type="text" name="financial_year" value="{{ $tds->financial_year }}" class="form-control form-control-sm" required></div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Quarter</label>
-                                        <select name="quarter" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::QUARTERS as $q)<option value="{{ $q }}" @selected($tds->quarter === $q)>{{ $q }}</option>@endforeach</select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Form</label>
-                                        <select name="form_type" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::FORM_TYPES as $f)<option value="{{ $f }}" @selected($tds->form_type === $f)>{{ $f }}</option>@endforeach</select>
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Deduction Amount</label><input type="number" step="0.01" name="deduction_amount" value="{{ $tds->deduction_amount }}" class="form-control form-control-sm" required></div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Tax Deposited</label><input type="number" step="0.01" name="tax_deposited" value="{{ $tds->tax_deposited }}" class="form-control form-control-sm" required></div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Status</label>
-                                        <select name="status" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::STATUSES as $k => $v)<option value="{{ $k }}" @selected($tds->status === $k)>{{ $v }}</option>@endforeach</select>
-                                    </div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Challan Number</label><input type="text" name="challan_number" value="{{ $tds->challan_number }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">BSR Code</label><input type="text" name="bsr_code" value="{{ $tds->bsr_code }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Challan Date</label><input type="date" name="challan_date" value="{{ $tds->challan_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Due Date</label><input type="date" name="due_date" value="{{ $tds->due_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-4"><label class="form-label small fw-semibold">Filing Date</label><input type="date" name="filing_date" value="{{ $tds->filing_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Assigned To</label>
-                                        <select name="assigned_to" class="form-select form-select-sm">
-                                            <option value="">Unassigned</option>
-                                            @foreach($staff as $member)<option value="{{ $member->id }}" @selected($tds->assigned_to == $member->id)>{{ $member->name }}</option>@endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6"><label class="form-label small fw-semibold">Acknowledgement / Token No.</label><input type="text" name="acknowledgement_number" value="{{ $tds->acknowledgement_number }}" class="form-control form-control-sm"></div>
-                                    <div class="col-md-6"><label class="form-label small fw-semibold">Notes</label><input type="text" name="notes" value="{{ $tds->notes }}" class="form-control form-control-sm"></div>
-                                </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save Changes</button></div>
-                            </form>
-                        </div>
-                    </div>
                 @empty
                     <tr><td colspan="9" class="text-center text-muted py-4">No TDS return records found.</td></tr>
                 @endforelse
@@ -152,6 +111,49 @@
         <div class="p-3 border-top">{{ $tdsReturns->links() }}</div>
     @endif
 </div>
+
+@foreach($tdsReturns as $tds)
+    <div class="modal fade" id="editTdsModal{{ $tds->id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <form action="{{ route('tds.update', $tds) }}" method="POST" class="modal-content">
+                @csrf @method('PUT')
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Update TDS — {{ $tds->client->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body row g-3">
+                    <div class="col-md-4"><label class="form-label small fw-semibold">FY</label><input type="text" name="financial_year" value="{{ $tds->financial_year }}" class="form-control form-control-sm" required></div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Quarter</label>
+                        <select name="quarter" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::QUARTERS as $q)<option value="{{ $q }}" @selected($tds->quarter === $q)>{{ $q }}</option>@endforeach</select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Form</label>
+                        <select name="form_type" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::FORM_TYPES as $f)<option value="{{ $f }}" @selected($tds->form_type === $f)>{{ $f }}</option>@endforeach</select>
+                    </div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Deduction Amount</label><input type="number" step="0.01" name="deduction_amount" value="{{ $tds->deduction_amount }}" class="form-control form-control-sm" required></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Tax Deposited</label><input type="number" step="0.01" name="tax_deposited" value="{{ $tds->tax_deposited }}" class="form-control form-control-sm" required></div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Status</label>
+                        <select name="status" class="form-select form-select-sm">@foreach(\App\Models\TdsReturn::STATUSES as $k => $v)<option value="{{ $k }}" @selected($tds->status === $k)>{{ $v }}</option>@endforeach</select>
+                    </div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Challan Number</label><input type="text" name="challan_number" value="{{ $tds->challan_number }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">BSR Code</label><input type="text" name="bsr_code" value="{{ $tds->bsr_code }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Challan Date</label><input type="date" name="challan_date" value="{{ $tds->challan_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Due Date</label><input type="date" name="due_date" value="{{ $tds->due_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><label class="form-label small fw-semibold">Filing Date</label><input type="date" name="filing_date" value="{{ $tds->filing_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Assigned To</label>
+                        <select name="assigned_to" class="form-select form-select-sm">
+                            <option value="">Unassigned</option>
+                            @foreach($staff as $member)<option value="{{ $member->id }}" @selected($tds->assigned_to == $member->id)>{{ $member->name }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Acknowledgement / Token No.</label><input type="text" name="acknowledgement_number" value="{{ $tds->acknowledgement_number }}" class="form-control form-control-sm"></div>
+                    <div class="col-md-6"><label class="form-label small fw-semibold">Notes</label><input type="text" name="notes" value="{{ $tds->notes }}" class="form-control form-control-sm"></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
+@endforeach
 
 <div class="modal fade" id="addTdsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">

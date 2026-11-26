@@ -39,8 +39,15 @@
 </div>
 
 <div class="ca-card overflow-hidden">
-    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-        <h2 class="h6 fw-bold mb-0">{{ $reportTypes[$type] }}</h2>
+    <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 class="h6 fw-bold mb-0">{{ $reportTypes[$type] }}</h2>
+            @if($fromDate || $toDate)
+                <div class="text-muted" style="font-size: 0.75rem;">
+                    Filtered: {{ $fromDate ?: 'Start' }} to {{ $toDate ?: 'Present' }}
+                </div>
+            @endif
+        </div>
         <span class="badge badge-soft-primary">{{ count($report['rows']) }} Records</span>
     </div>
     <div class="table-responsive">

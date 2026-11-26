@@ -44,7 +44,7 @@ class ReportService
             'outstanding_invoices' => $this->outstandingInvoicesReport($fromDate, $toDate),
             'monthly_revenue' => $this->monthlyRevenueReport($fromDate, $toDate),
             'document_collection' => $this->documentCollectionReport($fromDate, $toDate),
-            default => $this->clientComplianceReport(),
+            default => $this->clientComplianceReport($fromDate, $toDate),
         };
     }
 
@@ -67,14 +67,23 @@ class ReportService
         ]);
     }
 
-    private function clientComplianceReport(): array
+    private function clientComplianceReport(?string $fromDate = null, ?string $toDate = null): array
     {
+        $applyDateFilter = function ($q) use ($fromDate, $toDate) {
+            if ($fromDate) {
+                $q->whereDate('due_date', '>=', $fromDate);
+            }
+            if ($toDate) {
+                $q->whereDate('due_date', '<=', $toDate);
+            }
+        };
+
         $clients = Client::with(['assignedCa'])
             ->withCount([
-                'gstReturns as gst_pending_count' => fn ($q) => $q->where('status', '!=', 'filed'),
-                'itrFilings as itr_pending_count' => fn ($q) => $q->whereNotIn('filing_status', ['filed', 'verified']),
-                'tdsReturns as tds_pending_count' => fn ($q) => $q->where('status', '!=', 'filed'),
-                'tasks as open_tasks_count' => fn ($q) => $q->where('status', '!=', 'completed'),
+                'gstReturns as gst_pending_count' => fn ($q) => $applyDateFilter($q->where('status', '!=', 'filed')),
+                'itrFilings as itr_pending_count' => fn ($q) => $applyDateFilter($q->whereNotIn('filing_status', ['filed', 'verified'])),
+                'tdsReturns as tds_pending_count' => fn ($q) => $applyDateFilter($q->where('status', '!=', 'filed')),
+                'tasks as open_tasks_count' => fn ($q) => $applyDateFilter($q->where('status', '!=', 'completed')),
             ])->orderBy('name')->get();
 
         return [
@@ -208,12 +217,21 @@ class ReportService
 
     private function employeeProductivityReport(?string $fromDate, ?string $toDate): array
     {
+        $applyDateFilter = function ($q) use ($fromDate, $toDate) {
+            if ($fromDate) {
+                $q->whereDate('due_date', '>=', $fromDate);
+            }
+            if ($toDate) {
+                $q->whereDate('due_date', '<=', $toDate);
+            }
+        };
+
         $staff = User::staff()->withCount([
-            'assignedTasks as total_tasks',
-            'assignedTasks as completed_tasks' => fn ($q) => $q->where('status', 'completed'),
-            'assignedTasks as overdue_tasks' => fn ($q) => $q->where('status', '!=', 'completed')->whereDate('due_date', '<', today()),
-            'gstReturns as gst_filed' => fn ($q) => $q->where('status', 'filed'),
-            'itrFilings as itr_filed' => fn ($q) => $q->whereIn('filing_status', ['filed', 'verified']),
+            'assignedTasks as total_tasks' => fn ($q) => $applyDateFilter($q),
+            'assignedTasks as completed_tasks' => fn ($q) => $applyDateFilter($q->where('status', 'completed')),
+            'assignedTasks as overdue_tasks' => fn ($q) => $applyDateFilter($q->where('status', '!=', 'completed')->whereDate('due_date', '<', today())),
+            'gstReturns as gst_filed' => fn ($q) => $applyDateFilter($q->where('status', 'filed')),
+            'itrFilings as itr_filed' => fn ($q) => $applyDateFilter($q->whereIn('filing_status', ['filed', 'verified'])),
         ])->orderBy('name')->get();
 
         return [
@@ -338,4 +356,3 @@ class ReportService
         ];
     }
 }
-

@@ -25,7 +25,7 @@
         <div class="mt-2 pt-2 border-top d-flex align-items-center justify-content-between" style="font-size: 0.76rem;">
             <span class="text-muted">{{ $subtitle }}</span>
             @if($href)
-                <a href="{{ $href }}" class="text-decoration-none fw-semibold" style="color: #0284c7;">View <i class="bi bi-arrow-right-short"></i></a>
+                <a href="{{ $href }}" class="text-decoration-none fw-semibold" style="color: #1e3a5f;">View <i class="bi bi-arrow-right-short"></i></a>
             @endif
         </div>
     @endif

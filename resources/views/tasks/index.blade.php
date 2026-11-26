@@ -49,10 +49,18 @@
                                 <a href="{{ route('tasks.show', $task) }}" class="fw-semibold d-block text-decoration-none text-dark mb-1">{{ $task->title }}</a>
                                 <div class="small text-muted mb-2">{{ $task->client?->name ?? 'Internal Practice' }}</div>
                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
-                                    <span class="text-muted">{{ $task->assignee?->name ?? 'Unassigned' }}</span>
-                                    <span class="{{ $task->isOverdue() ? 'text-danger fw-semibold' : 'text-muted' }}">
+                                    <span class="text-muted text-truncate me-2">{{ $task->assignee?->name ?? 'Unassigned' }}</span>
+                                    <span class="text-nowrap {{ $task->isOverdue() ? 'text-danger fw-semibold' : 'text-muted' }}">
                                         {{ $task->due_date?->format('d M') ?? 'No due' }}
                                     </span>
+                                </div>
+                                <div class="mt-2 pt-2 border-top d-flex align-items-center gap-2">
+                                    <label class="small text-muted mb-0 text-nowrap" for="taskMove{{ $task->id }}">Stage:</label>
+                                    <select id="taskMove{{ $task->id }}" class="form-select form-select-sm js-task-status-select" data-task-id="{{ $task->id }}" aria-label="Change task stage">
+                                        @foreach(\App\Models\Task::STATUSES as $sk => $sl)
+                                            <option value="{{ $sk }}" @selected($task->status === $sk)>{{ $sl }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         @endforeach

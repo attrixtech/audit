@@ -70,35 +70,53 @@
     $startOfCal = $currentMonth->copy()->startOfMonth()->startOfWeek(\Carbon\Carbon::SUNDAY);
     $endOfCal = $currentMonth->copy()->endOfMonth()->endOfWeek(\Carbon\Carbon::SATURDAY);
 @endphp
-<div class="ca-card p-3 mb-4 d-none d-md-block">
-    <div class="calendar-grid mb-1 text-center bg-light fw-bold small py-2" style="grid-template-columns: repeat(7, 1fr);">
-        @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $wd)
-            <div>{{ $wd }}</div>
-        @endforeach
-    </div>
-    <div class="calendar-grid">
-        @for($day = $startOfCal->copy(); $day->lte($endOfCal); $day->addDay())
-            @php
-                $key = $day->format('Y-m-d');
-                $dayItems = $monthDeadlines->get($key, collect());
-            @endphp
-            <div class="calendar-day {{ $day->month !== $currentMonth->month ? 'other-month' : '' }} {{ $day->isToday() ? 'today' : '' }}">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small fw-bold">{{ $day->day }}</span>
-                    @if($dayItems->count() > 0)
-                        <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 0.65rem;">{{ $dayItems->count() }}</span>
+<div class="ca-card p-3 mb-4">
+    <div class="overflow-auto">
+        <div class="calendar-grid mb-1 text-center bg-light fw-bold small py-2" style="grid-template-columns: repeat(7, 1fr);">
+            @foreach(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $wd)
+                <div>{{ $wd }}</div>
+            @endforeach
+        </div>
+        <div class="calendar-grid">
+            @for($day = $startOfCal->copy(); $day->lte($endOfCal); $day->addDay())
+                @php
+                    $key = $day->format('Y-m-d');
+                    $dayItems = $monthDeadlines->get($key, collect());
+                    $dayPayload = $dayItems->map(fn ($item) => [
+                        'id' => $item->id,
+                        'title' => $item->title,
+                        'type' => $item->typeLabel(),
+                        'client' => $item->client?->name ?? 'Firm-wide',
+                        'status' => $item->statusLabel(),
+                        'priority' => ucfirst($item->priority),
+                        'assignee' => $item->assignee?->name ?? 'Unassigned',
+                        'description' => $item->description,
+                    ])->values();
+                @endphp
+                <div class="calendar-day calendar-day-clickable {{ $day->month !== $currentMonth->month ? 'other-month' : '' }} {{ $day->isToday() ? 'today' : '' }}"
+                     role="button"
+                     tabindex="0"
+                     data-calendar-day
+                     data-date="{{ $key }}"
+                     data-label="{{ $day->format('d M Y (l)') }}"
+                     data-items='@json($dayPayload)'>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-bold">{{ $day->day }}</span>
+                        @if($dayItems->count() > 0)
+                            <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 0.65rem;">{{ $dayItems->count() }}</span>
+                        @endif
+                    </div>
+                    @foreach($dayItems->take(3) as $item)
+                        <div class="rounded px-1 py-0 mb-1 text-truncate border {{ $item->status === 'completed' ? 'bg-success-subtle text-success' : ($item->due_date->isPast() ? 'bg-danger-subtle text-danger' : 'bg-info-subtle text-primary') }}" style="font-size: 0.7rem;" title="{{ $item->title }}">
+                            {{ $item->typeLabel() }}: {{ $item->title }}
+                        </div>
+                    @endforeach
+                    @if($dayItems->count() > 3)
+                        <div class="text-muted" style="font-size: 0.68rem;">+{{ $dayItems->count() - 3 }} more</div>
                     @endif
                 </div>
-                @foreach($dayItems->take(3) as $item)
-                    <div class="rounded px-1 py-0 mb-1 text-truncate border {{ $item->status === 'completed' ? 'bg-success-subtle text-success' : ($item->due_date->isPast() ? 'bg-danger-subtle text-danger' : 'bg-info-subtle text-primary') }}" style="font-size: 0.7rem;" title="{{ $item->title }}">
-                        {{ $item->typeLabel() }}: {{ $item->title }}
-                    </div>
-                @endforeach
-                @if($dayItems->count() > 3)
-                    <div class="text-muted" style="font-size: 0.68rem;">+{{ $dayItems->count() - 3 }} more</div>
-                @endif
-            </div>
-        @endfor
+            @endfor
+        </div>
     </div>
 </div>
 
@@ -131,34 +149,13 @@
                         <td><x-status-badge :status="$dl->status" :label="$dl->statusLabel()" /></td>
                         <td class="small">{{ $dl->assignee?->name ?? 'Unassigned' }}</td>
                         <td class="text-end text-nowrap">
-                            <button class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editDlModal{{ $dl->id }}"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editDlModal{{ $dl->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
                             <form action="{{ route('calendar.destroy', $dl) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete deadline?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>
-
-                    <div class="modal fade" id="editDlModal{{ $dl->id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <form action="{{ route('calendar.update', $dl) }}" method="POST" class="modal-content">
-                                @csrf @method('PUT')
-                                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Update Deadline</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                <div class="modal-body row g-2">
-                                    <div class="col-12"><label class="form-label small fw-semibold">Title</label><input type="text" name="title" value="{{ $dl->title }}" class="form-control form-control-sm" required></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Type</label><select name="compliance_type" class="form-select form-select-sm">@foreach(\App\Models\ComplianceDeadline::TYPES as $k => $v)<option value="{{ $k }}" @selected($dl->compliance_type === $k)>{{ $v }}</option>@endforeach</select></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Status</label><select name="status" class="form-select form-select-sm">@foreach(\App\Models\ComplianceDeadline::STATUSES as $k => $v)<option value="{{ $k }}" @selected($dl->status === $k)>{{ $v }}</option>@endforeach</select></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Due Date</label><input type="date" name="due_date" value="{{ $dl->due_date->format('Y-m-d') }}" class="form-control form-control-sm" required></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Reminder Date</label><input type="date" name="reminder_date" value="{{ $dl->reminder_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Client</label><select name="client_id" class="form-select form-select-sm"><option value="">Firm-wide</option>@foreach($clients as $c)<option value="{{ $c->id }}" @selected($dl->client_id == $c->id)>{{ $c->name }}</option>@endforeach</select></div>
-                                    <div class="col-6"><label class="form-label small fw-semibold">Assigned To</label><select name="assigned_to" class="form-select form-select-sm"><option value="">Unassigned</option>@foreach($staff as $m)<option value="{{ $m->id }}" @selected($dl->assigned_to == $m->id)>{{ $m->name }}</option>@endforeach</select></div>
-                                    <div class="col-12"><label class="form-label small fw-semibold">Priority</label><select name="priority" class="form-select form-select-sm">@foreach(['low','medium','high','urgent'] as $p)<option value="{{ $p }}" @selected($dl->priority === $p)>{{ ucfirst($p) }}</option>@endforeach</select></div>
-                                    <div class="col-12"><label class="form-label small fw-semibold">Description</label><textarea name="description" rows="2" class="form-control form-control-sm">{{ $dl->description }}</textarea></div>
-                                </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save</button></div>
-                            </form>
-                        </div>
-                    </div>
                 @empty
                     <tr><td colspan="9" class="text-center text-muted py-4">No deadlines match the selected filters.</td></tr>
                 @endforelse
@@ -168,6 +165,46 @@
     @if($deadlines->hasPages())
         <div class="p-3 border-top">{{ $deadlines->links() }}</div>
     @endif
+</div>
+
+@foreach($deadlines as $dl)
+    <div class="modal fade" id="editDlModal{{ $dl->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form action="{{ route('calendar.update', $dl) }}" method="POST" class="modal-content">
+                @csrf @method('PUT')
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Update Deadline</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body row g-2">
+                    <div class="col-12"><label class="form-label small fw-semibold">Title</label><input type="text" name="title" value="{{ $dl->title }}" class="form-control form-control-sm" required></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Type</label><select name="compliance_type" class="form-select form-select-sm">@foreach(\App\Models\ComplianceDeadline::TYPES as $k => $v)<option value="{{ $k }}" @selected($dl->compliance_type === $k)>{{ $v }}</option>@endforeach</select></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Status</label><select name="status" class="form-select form-select-sm">@foreach(\App\Models\ComplianceDeadline::STATUSES as $k => $v)<option value="{{ $k }}" @selected($dl->status === $k)>{{ $v }}</option>@endforeach</select></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Due Date</label><input type="date" name="due_date" value="{{ $dl->due_date->format('Y-m-d') }}" class="form-control form-control-sm" required></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Reminder Date</label><input type="date" name="reminder_date" value="{{ $dl->reminder_date?->format('Y-m-d') }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Client</label><select name="client_id" class="form-select form-select-sm"><option value="">Firm-wide</option>@foreach($clients as $c)<option value="{{ $c->id }}" @selected($dl->client_id == $c->id)>{{ $c->name }}</option>@endforeach</select></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Assigned To</label><select name="assigned_to" class="form-select form-select-sm"><option value="">Unassigned</option>@foreach($staff as $m)<option value="{{ $m->id }}" @selected($dl->assigned_to == $m->id)>{{ $m->name }}</option>@endforeach</select></div>
+                    <div class="col-12"><label class="form-label small fw-semibold">Priority</label><select name="priority" class="form-select form-select-sm">@foreach(['low','medium','high','urgent'] as $p)<option value="{{ $p }}" @selected($dl->priority === $p)>{{ ucfirst($p) }}</option>@endforeach</select></div>
+                    <div class="col-12"><label class="form-label small fw-semibold">Description</label><textarea name="description" rows="2" class="form-control form-control-sm">{{ $dl->description }}</textarea></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save</button></div>
+            </form>
+        </div>
+    </div>
+@endforeach
+
+<!-- Day Review Modal -->
+<div class="modal fade" id="dayReviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h6 fw-bold" id="dayReviewTitle">Day Deadlines</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="dayReviewBody"></div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-sm btn-primary" id="dayReviewAddBtn"><i class="bi bi-plus-lg me-1"></i>Add Deadline for This Day</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Add Deadline Modal -->
@@ -231,4 +268,85 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const reviewModalEl = document.getElementById('dayReviewModal');
+    const reviewTitle = document.getElementById('dayReviewTitle');
+    const reviewBody = document.getElementById('dayReviewBody');
+    const reviewAddBtn = document.getElementById('dayReviewAddBtn');
+    const addModalEl = document.getElementById('addDeadlineModal');
+    let selectedDate = '';
+
+    const escapeHtml = (str) => String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+    const openDayReview = (cell) => {
+        selectedDate = cell.dataset.date || '';
+        const label = cell.dataset.label || selectedDate;
+        const items = JSON.parse(cell.dataset.items || '[]');
+        reviewTitle.textContent = `Deadlines — ${label}`;
+
+        if (!items.length) {
+            reviewBody.innerHTML = '<div class="text-muted small text-center py-3">No compliance deadlines scheduled on this date.</div>';
+        } else {
+            reviewBody.innerHTML = items.map((item) => {
+                const editBtn = document.getElementById(`editDlModal${item.id}`)
+                    ? `<button type="button" class="btn btn-sm btn-light border js-open-dl-edit" data-target="#editDlModal${item.id}"><i class="bi bi-pencil me-1"></i>Edit</button>`
+                    : '';
+                return `
+                    <div class="border rounded p-2 mb-2 bg-light">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <div class="fw-semibold small">${escapeHtml(item.title)}</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">${escapeHtml(item.type)} · ${escapeHtml(item.client)} · ${escapeHtml(item.assignee)}</div>
+                                <div class="mt-1"><span class="badge badge-soft-info">${escapeHtml(item.status)}</span> <span class="badge badge-soft-secondary">${escapeHtml(item.priority)}</span></div>
+                            </div>
+                            ${editBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            reviewBody.querySelectorAll('.js-open-dl-edit').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const targetEl = document.querySelector(btn.dataset.target);
+                    if (!targetEl || !window.bootstrap) return;
+                    window.bootstrap.Modal.getOrCreateInstance(reviewModalEl).hide();
+                    window.bootstrap.Modal.getOrCreateInstance(targetEl).show();
+                });
+            });
+        }
+
+        if (window.bootstrap) {
+            window.bootstrap.Modal.getOrCreateInstance(reviewModalEl).show();
+        }
+    };
+
+    document.querySelectorAll('[data-calendar-day]').forEach((cell) => {
+        cell.addEventListener('click', () => openDayReview(cell));
+        cell.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openDayReview(cell);
+            }
+        });
+    });
+
+    reviewAddBtn?.addEventListener('click', () => {
+        if (!addModalEl || !window.bootstrap) return;
+        const dueInput = addModalEl.querySelector('input[name="due_date"]');
+        if (dueInput && selectedDate) {
+            dueInput.value = selectedDate;
+        }
+        window.bootstrap.Modal.getOrCreateInstance(reviewModalEl).hide();
+        window.bootstrap.Modal.getOrCreateInstance(addModalEl).show();
+    });
+});
+</script>
+@endpush
 

@@ -1,9 +1,9 @@
 @props(['inline' => false])
 
 @if($inline)
-    <div {{ $attributes->merge(['style' => 'font-size: 11px; color: #64748b;']) }}>
-        thrumble.audit &middot; Developed by <a href="https://www.attrixtech.com" style="color: #0284c7;">Attrix Technologies</a>
-        &middot; Marketed by <a href="https://www.infusionn.in" style="color: #0284c7;">Infusionn Pvt. Ltd</a>
+    <div {{ $attributes->merge(['style' => 'font-size: 11px; color: #475569;']) }}>
+        thrumble.audit &middot; Developed by <a href="https://www.attrixtech.com" style="color: #1e3a5f;">Attrix Technologies</a>
+        &middot; Marketed by <a href="https://www.infusionn.in" style="color: #1e3a5f;">Infusionn Pvt. Ltd</a>
     </div>
 @else
     <footer {{ $attributes->merge(['class' => 'text-center text-muted small py-3']) }} style="font-size: 0.75rem;">

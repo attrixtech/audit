@@ -46,7 +46,22 @@
 
     <div class="col-lg-7">
         <div class="ca-card overflow-hidden">
-            <div class="p-3 border-bottom"><h2 class="h6 fw-bold mb-0">System Audit Trail</h2></div>
+            <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h2 class="h6 fw-bold mb-0">System Audit Trail</h2>
+                <form method="GET" action="{{ route('settings.index') }}" class="d-flex flex-wrap gap-1 align-items-center">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" style="width: 150px;" placeholder="Search logs...">
+                    <select name="module" class="form-select form-select-sm" style="width: 130px;">
+                        <option value="">All Modules</option>
+                        @foreach($logModules as $mod)
+                            <option value="{{ $mod }}" @selected(request('module') === $mod)>{{ ucfirst($mod) }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                    @if(request('search') || request('module'))
+                        <a href="{{ route('settings.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    @endif
+                </form>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead><tr><th>Timestamp</th><th>User</th><th>Module</th><th>Description</th></tr></thead>

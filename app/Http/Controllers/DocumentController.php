@@ -9,6 +9,7 @@ use App\Notifications\PracticeAlertNotification;
 use App\Services\ActivityLogger;
 use App\Services\ClientAccessService;
 use App\Services\DocumentStorageService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -115,10 +116,20 @@ class DocumentController extends Controller
         return back()->with('success', "Uploaded new version v{$document->fresh()->current_version}.");
     }
 
-    public function approve(Request $request, Document $document): RedirectResponse
+    public function approve(Request $request, Document $document): RedirectResponse|JsonResponse
     {
         abort_unless($this->clientAccess->canAccessClient($request->user(), $document->client), 403);
         $this->storageService->approve($document, $request->user()->id);
+
+        if ($request->expectsJson()) {
+            $document->refresh();
+
+            return response()->json([
+                'status' => $document->status,
+                'status_label' => $document->statusLabel(),
+                'message' => 'Document approved.',
+            ]);
+        }
 
         return back()->with('success', 'Document approved.');
     }
@@ -162,4 +173,3 @@ class DocumentController extends Controller
         return back()->with('success', 'Document record deleted.');
     }
 }
-

@@ -103,12 +103,17 @@ class ClientPortalController extends Controller
         $clientIds = $this->clientAccess->portalClientIds($request->user());
         abort_if($clientIds->isEmpty(), 404);
 
+        $pdfMessages = [
+            'file.mimes' => 'Please upload PDF only.',
+            'file.mimetypes' => 'Please upload PDF only.',
+        ];
+
         if ($request->filled('document_id')) {
             $request->validate([
                 'document_id' => ['required', 'integer'],
-                'file' => ['required', 'file', 'max:20480'],
+                'file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
                 'notes' => ['nullable', 'string', 'max:1000'],
-            ]);
+            ], $pdfMessages);
 
             $doc = Document::whereIn('client_id', $clientIds)
                 ->where('id', $request->input('document_id'))
@@ -123,9 +128,9 @@ class ClientPortalController extends Controller
             'client_id' => ['nullable', 'integer', Rule::in($clientIds->all())],
             'title' => ['required', 'string', 'max:255'],
             'category' => ['required', Rule::in(array_keys(Document::CATEGORIES))],
-            'file' => ['required', 'file', 'max:20480'],
+            'file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
             'notes' => ['nullable', 'string', 'max:1000'],
-        ]);
+        ], $pdfMessages);
 
         $targetClientId = (int) ($validated['client_id'] ?? $clientIds->first());
 

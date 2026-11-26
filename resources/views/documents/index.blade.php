@@ -14,10 +14,10 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3"><x-kpi-card title="Awaiting Client (Requested)" :value="$summary['requested']" icon="bi-clock-history" tone="warning" /></div>
-    <div class="col-6 col-md-3"><x-kpi-card title="Uploaded (For Review)" :value="$summary['uploaded']" icon="bi-file-earmark-arrow-up" tone="info" /></div>
-    <div class="col-6 col-md-3"><x-kpi-card title="Approved" :value="$summary['approved']" icon="bi-patch-check" tone="success" /></div>
-    <div class="col-6 col-md-3"><x-kpi-card title="Rejected" :value="$summary['rejected']" icon="bi-x-octagon" tone="danger" /></div>
+    <div class="col-6 col-md-3" data-kpi="requested"><x-kpi-card title="Awaiting Client (Requested)" :value="$summary['requested']" icon="bi-clock-history" tone="warning" /></div>
+    <div class="col-6 col-md-3" data-kpi="uploaded"><x-kpi-card title="Uploaded (For Review)" :value="$summary['uploaded']" icon="bi-file-earmark-arrow-up" tone="info" /></div>
+    <div class="col-6 col-md-3" data-kpi="approved"><x-kpi-card title="Approved" :value="$summary['approved']" icon="bi-patch-check" tone="success" /></div>
+    <div class="col-6 col-md-3" data-kpi="rejected"><x-kpi-card title="Rejected" :value="$summary['rejected']" icon="bi-x-octagon" tone="danger" /></div>
 </div>
 
 <div class="ca-card p-3 mb-3">
@@ -78,60 +78,21 @@
                             @endif
                         </td>
                         <td class="small">{{ $doc->uploader?->name ?? '—' }}<div class="text-muted">{{ $doc->updated_at->format('d M Y') }}</div></td>
-                        <td><x-status-badge :status="$doc->status" :label="$doc->statusLabel()" /></td>
+                        <td class="js-doc-status"><x-status-badge :status="$doc->status" :label="$doc->statusLabel()" /></td>
                         <td class="text-end text-nowrap">
                             @if($doc->file_path)
                                 <a href="{{ route('documents.download', $doc) }}" class="btn btn-sm btn-light border" title="Download"><i class="bi bi-download"></i></a>
                             @endif
-                            <button class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#uploadVersionModal{{ $doc->id }}" title="Upload New Version"><i class="bi bi-upload"></i></button>
+                            <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#uploadVersionModal{{ $doc->id }}" title="Upload New Version"><i class="bi bi-upload"></i></button>
                             @if($doc->status === 'uploaded')
-                                <form action="{{ route('documents.approve', $doc) }}" method="POST" class="d-inline">
+                                <form action="{{ route('documents.approve', $doc) }}" method="POST" class="d-inline js-approve-doc-form">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Approve"><i class="bi bi-check-lg"></i></button>
                                 </form>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectDocModal{{ $doc->id }}" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger js-reject-doc-btn" data-bs-toggle="modal" data-bs-target="#rejectDocModal{{ $doc->id }}" title="Reject"><i class="bi bi-x-lg"></i></button>
                             @endif
                         </td>
                     </tr>
-
-                    <!-- Upload Version Modal -->
-                    <div class="modal fade" id="uploadVersionModal{{ $doc->id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <form action="{{ route('documents.upload', $doc) }}" method="POST" enctype="multipart/form-data" class="modal-content">
-                                @csrf
-                                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Upload Version (v{{ $doc->current_version + 1 }}) — {{ $doc->title }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                <div class="modal-body">
-                                    <div class="mb-3"><label class="form-label small fw-semibold">Select File *</label><input type="file" name="file" class="form-control form-control-sm" required></div>
-                                    <div class="mb-3"><label class="form-label small fw-semibold">Version Notes</label><input type="text" name="notes" class="form-control form-control-sm" placeholder="Updated copy with sign &amp; stamp"></div>
-                                    @if($doc->versions->count() > 0)
-                                        <div class="small fw-semibold mb-1">Version History</div>
-                                        @foreach($doc->versions as $ver)
-                                            <div class="d-flex justify-content-between align-items-center small border-bottom py-1">
-                                                <span>v{{ $ver->version_number }} · {{ $ver->original_filename }}</span>
-                                                <a href="{{ route('documents.download', ['document' => $doc->id, 'version' => $ver->id]) }}" class="text-decoration-none">Download</a>
-                                            </div>
-                                        @endforeach
-                                    @endif
-                                </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Upload</button></div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Reject Modal -->
-                    <div class="modal fade" id="rejectDocModal{{ $doc->id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <form action="{{ route('documents.reject', $doc) }}" method="POST" class="modal-content">
-                                @csrf
-                                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Reject Document</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                <div class="modal-body">
-                                    <label class="form-label small fw-semibold">Rejection Reason *</label>
-                                    <textarea name="rejection_reason" rows="3" class="form-control form-control-sm" required placeholder="Scan is blurry / missing Q4 pages"></textarea>
-                                </div>
-                                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-danger">Mark Rejected</button></div>
-                            </form>
-                        </div>
-                    </div>
                 @empty
                     <tr><td colspan="7" class="text-center text-muted py-4">No documents found.</td></tr>
                 @endforelse
@@ -142,6 +103,47 @@
         <div class="p-3 border-top">{{ $documents->links() }}</div>
     @endif
 </div>
+
+@foreach($documents as $doc)
+    <!-- Upload Version Modal -->
+    <div class="modal fade" id="uploadVersionModal{{ $doc->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form action="{{ route('documents.upload', $doc) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                @csrf
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Upload Version (v{{ $doc->current_version + 1 }}) — {{ $doc->title }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label small fw-semibold">Select File *</label><input type="file" name="file" class="form-control form-control-sm" required></div>
+                    <div class="mb-3"><label class="form-label small fw-semibold">Version Notes</label><input type="text" name="notes" class="form-control form-control-sm" placeholder="Updated copy with sign &amp; stamp"></div>
+                    @if($doc->versions->count() > 0)
+                        <div class="small fw-semibold mb-1">Version History</div>
+                        @foreach($doc->versions as $ver)
+                            <div class="d-flex justify-content-between align-items-center small border-bottom py-1">
+                                <span>v{{ $ver->version_number }} · {{ $ver->original_filename }}</span>
+                                <a href="{{ route('documents.download', ['document' => $doc->id, 'version' => $ver->id]) }}" class="text-decoration-none">Download</a>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Upload</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectDocModal{{ $doc->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <form action="{{ route('documents.reject', $doc) }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Reject Document — {{ $doc->title }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <label class="form-label small fw-semibold">Rejection Reason *</label>
+                    <textarea name="rejection_reason" rows="3" class="form-control form-control-sm" required placeholder="Scan is blurry / missing Q4 pages"></textarea>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-danger">Mark Rejected</button></div>
+            </form>
+        </div>
+    </div>
+@endforeach
 
 <!-- New Request / Upload Modal -->
 <div class="modal fade" id="newDocumentModal" tabindex="-1">

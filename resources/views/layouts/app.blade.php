@@ -65,7 +65,7 @@
         </nav>
 
         <div class="p-3 border-top bg-light">
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 mb-2">
                 <span class="ca-avatar" style="background-color: {{ $user->avatar_color ?? '#1e3a5f' }};">
                     {{ $user->initials() }}
                 </span>
@@ -74,6 +74,12 @@
                     <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ $user->roleLabel() }}</div>
                 </div>
             </div>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -83,17 +89,36 @@
             <x-ca-logo :size="32" />
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-        <div class="offcanvas-body p-2">
-            @foreach($navItems as $section => $items)
-                <div class="small text-uppercase fw-bold text-muted px-3 pt-3 pb-1" style="font-size: 0.68rem;">{{ $section }}</div>
-                @foreach($items as $item)
-                    <a href="{{ route($item['route']) }}"
-                       class="d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none {{ request()->routeIs($item['pattern']) ? 'bg-primary-subtle text-primary fw-semibold' : 'text-dark' }}">
-                        <i class="bi {{ $item['icon'] }}"></i>
-                        <span>{{ $item['label'] }}</span>
-                    </a>
+        <div class="offcanvas-body d-flex flex-column p-2">
+            <div class="flex-grow-1">
+                @foreach($navItems as $section => $items)
+                    <div class="small text-uppercase fw-bold text-muted px-3 pt-3 pb-1" style="font-size: 0.68rem;">{{ $section }}</div>
+                    @foreach($items as $item)
+                        <a href="{{ route($item['route']) }}"
+                           class="d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none {{ request()->routeIs($item['pattern']) ? 'bg-primary-subtle text-primary fw-semibold' : 'text-dark' }}">
+                            <i class="bi {{ $item['icon'] }}"></i>
+                            <span>{{ $item['label'] }}</span>
+                        </a>
+                    @endforeach
                 @endforeach
-            @endforeach
+            </div>
+            <div class="p-2 mt-3 border-top bg-light rounded">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="ca-avatar" style="background-color: {{ $user->avatar_color ?? '#1e3a5f' }};">
+                        {{ $user->initials() }}
+                    </span>
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="fw-semibold text-truncate" style="font-size: 0.84rem;">{{ $user->name }}</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ $user->roleLabel() }}</div>
+                    </div>
+                </div>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                        <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -163,28 +188,6 @@
                             @endforelse
                         </div>
                     </div>
-                </div>
-
-                <!-- User Menu -->
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-light border d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown">
-                        <span class="ca-avatar" style="width: 26px; height: 26px; font-size: 0.68rem; background-color: {{ $user->avatar_color ?? '#1e3a5f' }};">
-                            {{ $user->initials() }}
-                        </span>
-                        <span class="d-none d-md-inline small fw-medium">{{ $user->name }}</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li class="px-3 py-2 border-bottom">
-                            <div class="fw-semibold small">{{ $user->name }}</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">{{ $user->roleLabel() }}</div>
-                        </li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button>
-                            </form>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </header>

@@ -22,10 +22,24 @@ class SettingController extends Controller
         abort_unless($request->user()->isAdminOrPartner(), 403);
 
         $settings = FirmSetting::allAsMap();
-        $logs = ActivityLog::with('user')->latest()->paginate(20);
+        $logQuery = ActivityLog::with('user')->latest();
+
+        if ($module = $request->query('module')) {
+            $logQuery->where('module', $module);
+        }
+        if ($search = trim((string) $request->query('search', ''))) {
+            $logQuery->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                    ->orWhere('module', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $logs = $logQuery->paginate(20)->withQueryString();
+        $logModules = ActivityLog::query()->select('module')->distinct()->orderBy('module')->pluck('module');
         $whatsAppConfigured = $this->whatsApp->isConfigured();
 
-        return view('settings.index', compact('settings', 'logs', 'whatsAppConfigured'));
+        return view('settings.index', compact('settings', 'logs', 'logModules', 'whatsAppConfigured'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -55,4 +69,3 @@ class SettingController extends Controller
         return back()->with('success', 'Firm settings saved.');
     }
 }
-

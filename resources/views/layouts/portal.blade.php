@@ -23,7 +23,7 @@
                 <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.profile') ? 'active fw-semibold text-primary' : '' }}" href="{{ route('portal.profile') }}">My Companies</a></li>
                 <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.documents') ? 'active fw-semibold text-primary' : '' }}" href="{{ route('portal.documents') }}">My Documents</a></li>
             </ul>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-between gap-3 pt-2 pt-lg-0 mt-2 mt-lg-0 border-top border-lg-0">
                 <span class="small text-muted">{{ $user->name }}</span>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf

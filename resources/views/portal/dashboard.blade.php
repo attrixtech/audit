@@ -12,8 +12,8 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-4"><x-kpi-card title="My Companies" :value="$companies->count()" icon="bi-buildings" tone="primary" :href="route('portal.profile')" /></div>
-    <div class="col-6 col-md-4"><x-kpi-card title="Pending Document Requests" :value="$pendingDocs->count()" icon="bi-folder-exclamation" tone="warning" :href="route('portal.documents')" /></div>
+    <div class="col-12 col-sm-6 col-md-4"><x-kpi-card title="My Companies" :value="$companies->count()" icon="bi-buildings" tone="primary" :href="route('portal.profile')" /></div>
+    <div class="col-12 col-sm-6 col-md-4"><x-kpi-card title="Pending Document Requests" :value="$pendingDocs->count()" icon="bi-folder-exclamation" tone="warning" :href="route('portal.documents')" /></div>
     <div class="col-12 col-md-4"><x-kpi-card title="Shared Documents" :value="$recentDocs->count()" icon="bi-file-earmark-check" tone="info" :href="route('portal.documents')" /></div>
 </div>
 
@@ -25,10 +25,10 @@
                 <a href="{{ route('portal.profile') }}" class="small text-decoration-none">View all →</a>
             </div>
             @forelse($companies as $company)
-                <div class="border rounded p-2 mb-2 bg-light d-flex justify-content-between align-items-center gap-2">
-                    <div>
-                        <div class="fw-semibold small">{{ $company->name }}</div>
-                        <div class="text-muted" style="font-size: 0.74rem;">
+                <div class="border rounded p-2 mb-2 bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="fw-semibold small text-truncate">{{ $company->name }}</div>
+                        <div class="text-muted text-break" style="font-size: 0.74rem;">
                             {{ $company->client_code }}
                             @if($company->gstin) · GSTIN: {{ $company->gstin }} @endif
                             @if($company->pan) · PAN: {{ $company->pan }} @endif
@@ -45,12 +45,12 @@
     <div class="col-lg-6">
         <div class="ca-card p-3 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h6 fw-bold mb-0">Pending Document Submissions</h2>
+                <h2 class="h6 fw-bold mb-0">Pending Document Requests ({{ $pendingDocs->count() }})</h2>
                 <a href="{{ route('portal.documents') }}" class="small text-decoration-none">Open Vault →</a>
             </div>
             @forelse($pendingDocs as $doc)
-                <div class="border rounded p-2 mb-2 bg-light d-flex justify-content-between align-items-center gap-2">
-                    <div>
+                <div class="border rounded p-2 mb-2 bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="min-w-0 flex-grow-1">
                         <div class="fw-semibold small">{{ $doc->title }}</div>
                         <div class="text-muted" style="font-size: 0.74rem;">{{ $doc->client?->name }} · {{ $doc->categoryLabel() }} · Due: {{ $doc->due_date?->format('d M Y') ?? 'As soon as possible' }}</div>
                         @if($doc->rejection_reason)

@@ -20,17 +20,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::get('/login', [AuthController::class, 'showLogin'])->middleware('no-cache')->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('no-cache')->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'no-cache'])->group(function () {
     Route::post('/notifications/{id}/read', [DashboardController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [DashboardController::class, 'markAllNotificationsRead'])->name('notifications.read_all');
 });
 
 // Staff Practice Management Workspace
-Route::middleware(['auth', 'role:super_admin,partner,manager,employee'])->group(function () {
+Route::middleware(['auth', 'no-cache', 'role:super_admin,partner,manager,employee'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/search', [DashboardController::class, 'search'])->name('global.search');
 
@@ -122,7 +122,7 @@ Route::middleware(['auth', 'role:super_admin,partner,manager,employee'])->group(
 });
 
 // Isolated Client Portal
-Route::prefix('portal')->name('portal.')->middleware(['auth', 'role:client'])->group(function () {
+Route::prefix('portal')->name('portal.')->middleware(['auth', 'no-cache', 'role:client'])->group(function () {
     Route::get('/dashboard', [ClientPortalController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [ClientPortalController::class, 'profile'])->name('profile');
     Route::get('/documents', [ClientPortalController::class, 'documents'])->name('documents');

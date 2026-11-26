@@ -71,50 +71,11 @@
                                 <td><x-status-badge :status="$member->is_active ? 'active' : 'inactive'" /></td>
                                 @if(auth()->user()->isManagerOrAbove())
                                     <td class="text-end text-nowrap">
-                                        <button class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editStaffModal{{ $member->id }}"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#assignClientsModal{{ $member->id }}" title="Assign Clients"><i class="bi bi-buildings"></i></button>
+                                        <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#editStaffModal{{ $member->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
+                                        <button type="button" class="btn btn-sm btn-light border" data-bs-toggle="modal" data-bs-target="#assignClientsModal{{ $member->id }}" title="Assign Clients"><i class="bi bi-buildings"></i></button>
                                     </td>
                                 @endif
                             </tr>
-
-                            @if(auth()->user()->isManagerOrAbove())
-                                <div class="modal fade" id="editStaffModal{{ $member->id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <form action="{{ route('staff.update', $member) }}" method="POST" class="modal-content">
-                                            @csrf @method('PUT')
-                                            <div class="modal-header"><h5 class="modal-title h6 fw-bold">Edit {{ $member->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                            <div class="modal-body row g-2">
-                                                <div class="col-6"><label class="form-label small fw-semibold">Name</label><input type="text" name="name" value="{{ $member->name }}" class="form-control form-control-sm" required></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Email</label><input type="email" name="email" value="{{ $member->email }}" class="form-control form-control-sm" required></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Role</label><select name="role" class="form-select form-select-sm">@foreach(\App\Models\User::STAFF_ROLES as $r)<option value="{{ $r }}" @selected($member->role === $r)>{{ \App\Models\User::ROLES[$r] }}</option>@endforeach</select></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Employee Code</label><input type="text" name="employee_code" value="{{ $member->employee_code }}" class="form-control form-control-sm"></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Designation</label><input type="text" name="designation" value="{{ $member->designation }}" class="form-control form-control-sm"></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Department</label><input type="text" name="department" value="{{ $member->department }}" class="form-control form-control-sm"></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">Phone</label><input type="text" name="phone" value="{{ $member->phone }}" class="form-control form-control-sm"></div>
-                                                <div class="col-6"><label class="form-label small fw-semibold">New Password (optional)</label><input type="password" name="password" class="form-control form-control-sm"></div>
-                                                <div class="col-12"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($member->is_active)><label class="form-check-label small">Active Account</label></div></div>
-                                            </div>
-                                            <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save</button></div>
-                                        </form>
-                                    </div>
-                                </div>
-
-                                <div class="modal fade" id="assignClientsModal{{ $member->id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <form action="{{ route('staff.assign_clients', $member) }}" method="POST" class="modal-content">
-                                            @csrf
-                                            <div class="modal-header"><h5 class="modal-title h6 fw-bold">Assign Secondary Clients — {{ $member->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                            <div class="modal-body">
-                                                @php($assignedIds = $member->secondaryClients->pluck('id')->toArray())
-                                                <select name="client_ids[]" class="form-select" multiple size="8">
-                                                    @foreach($clients as $c)<option value="{{ $c->id }}" @selected(in_array($c->id, $assignedIds))>{{ $c->name }}</option>@endforeach
-                                                </select>
-                                            </div>
-                                            <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Update Assignments</button></div>
-                                        </form>
-                                    </div>
-                                </div>
-                            @endif
                         @endforeach
                     </tbody>
                 </table>
@@ -145,6 +106,45 @@
 </div>
 
 @if(auth()->user()->isManagerOrAbove())
+@foreach($staffMembers as $member)
+    <div class="modal fade" id="editStaffModal{{ $member->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form action="{{ route('staff.update', $member) }}" method="POST" class="modal-content">
+                @csrf @method('PUT')
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Edit {{ $member->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body row g-2">
+                    <div class="col-6"><label class="form-label small fw-semibold">Name</label><input type="text" name="name" value="{{ $member->name }}" class="form-control form-control-sm" required></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Email</label><input type="email" name="email" value="{{ $member->email }}" class="form-control form-control-sm" required></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Role</label><select name="role" class="form-select form-select-sm">@foreach(\App\Models\User::STAFF_ROLES as $r)<option value="{{ $r }}" @selected($member->role === $r)>{{ \App\Models\User::ROLES[$r] }}</option>@endforeach</select></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Employee Code</label><input type="text" name="employee_code" value="{{ $member->employee_code }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Designation</label><input type="text" name="designation" value="{{ $member->designation }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Department</label><input type="text" name="department" value="{{ $member->department }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Phone</label><input type="text" name="phone" value="{{ $member->phone }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">New Password (optional)</label><input type="password" name="password" class="form-control form-control-sm"></div>
+                    <div class="col-12"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($member->is_active)><label class="form-check-label small">Active Account</label></div></div>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="assignClientsModal{{ $member->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form action="{{ route('staff.assign_clients', $member) }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header"><h5 class="modal-title h6 fw-bold">Assign Secondary Clients — {{ $member->name }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    @php($assignedIds = $member->secondaryClients->pluck('id')->toArray())
+                    <select name="client_ids[]" class="form-select" multiple size="8">
+                        @foreach($clients as $c)<option value="{{ $c->id }}" @selected(in_array($c->id, $assignedIds))>{{ $c->name }}</option>@endforeach
+                    </select>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-sm btn-primary">Update Assignments</button></div>
+            </form>
+        </div>
+    </div>
+@endforeach
+
 <div class="modal fade" id="addStaffModal" tabindex="-1">
     <div class="modal-dialog">
         <form action="{{ route('staff.store') }}" method="POST" class="modal-content">
